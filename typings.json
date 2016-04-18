@@ -1,0 +1,5 @@
+{
+  "ambientDependencies": {
+    "node-git": "registry:dt/node-git#0.0.0+20160316155526"
+  }
+}
