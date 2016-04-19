@@ -19,7 +19,7 @@ export type NodeGitRepository = any
 export default class Repository {
   public path: string
   public openedPath: string
-  private isCaseInsensitive: boolean
+  public isCaseInsensitive: boolean
   public pathStatusCache: {[key: string]: number}
   public upstream: {ahead: number, behind: number}
   public submodules: {[key: string]: Repository}
@@ -28,7 +28,7 @@ export default class Repository {
 
   private openExactPath: boolean
 
-  private repoPromise: Promise<NodeGitRepository>
+  public repoPromise: Promise<NodeGitRepository>
   private repoPool: ResourcePool<Promise<NodeGitRepository>>
 
   private _refreshingPromise: Promise<void>
@@ -159,7 +159,7 @@ export default class Repository {
   // * `path` The {String} path to relativize.
   //
   // Returns a {Promise} which resolves to the relative {String} path.
-  public relativizeToWorkingDirectory (_path: string): Promise<string> {
+  public relativizeToWorkingDirectory (_path?: string): Promise<string> {
     return this.getWorkingDirectory()
       .then(wd => this.relativize(_path, wd))
   }
@@ -170,7 +170,7 @@ export default class Repository {
   // * `workingDirectory` The {String} working directory path.
   //
   // Returns the relative {String} path.
-  public relativize (_path: string, workingDirectory: string): string {
+  public relativize (_path?: string, workingDirectory?: string): string {
     // The original implementation also handled null workingDirectory as it
     // pulled it from a sync function that could return null. We require it
     // to be passed here.
@@ -808,7 +808,7 @@ export default class Repository {
   //
   // Returns a {Promise} which resolves to a {boolean} indicating whether the
   // branch name changed.
-  private _refreshBranch (): Promise<boolean> {
+  public _refreshBranch (): Promise<boolean> {
     return this.repoPool.enqueue(() => {
       return this.getRepo()
         .then(repo => repo.getCurrentBranch())
@@ -828,7 +828,7 @@ export default class Repository {
   //
   // Returns a {Promise} which will resolve to a {boolean} indicating whether
   // the ahead/behind count changed.
-  private _refreshAheadBehindCount (branchName: string): Promise<boolean> {
+  public _refreshAheadBehindCount (branchName: string): Promise<boolean> {
     return this.getAheadBehindCount(branchName)
       .then(counts => {
         const changed = !_.isEqual(counts, this.upstream)
