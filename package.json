@@ -5,14 +5,13 @@
   "main": "./build/index.js",
   "typings": "./build/index.d.ts",
   "scripts": {
-    "test": "tsc && ava --serial",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "npm run lint && tsc",
     "lint": "tslint lib/**/*.ts"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "ava": "^0.14.0",
     "tslint": "^3.7.4",
     "typescript": "^1.8.10",
     "typings": "^0.7.12"
