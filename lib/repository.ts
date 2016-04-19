@@ -111,7 +111,7 @@ export default class Repository {
   //       {::isStatusModified} or {::isStatusNew} to get more information.
   //
   // Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
-  public onDidChangeStatus (callback: ({path: string, pathStatus: number}) => void) {
+  public onDidChangeStatus (callback: (event: {path: string, pathStatus: number}) => void) {
     return this.emitter.on('did-change-status', callback)
   }
 
@@ -144,7 +144,7 @@ export default class Repository {
 
   // Public: Returns a {Promise} which resolves to the {String} working
   // directory path of the repository.
-  public getWorkingDirectory (_path?: string | null): Promise<string> {
+  public getWorkingDirectory (_path?: string): Promise<string> {
     return this.getRepo(_path).then(repo => {
       if (!repo.cachedWorkdir) {
         repo.cachedWorkdir = repo.workdir()
@@ -174,7 +174,7 @@ export default class Repository {
     // The original implementation also handled null workingDirectory as it
     // pulled it from a sync function that could return null. We require it
     // to be passed here.
-    let openedWorkingDirectory: string | null
+    let openedWorkingDirectory: string
     if (!_path || !workingDirectory) {
       return _path
     }
@@ -255,7 +255,7 @@ export default class Repository {
   //   for, only needed if the repository contains submodules.
   //
   // Returns a {Promise} which resolves to a {String}.
-  public getShortHead (_path?: string | null): Promise<string> {
+  public getShortHead (_path?: string): Promise<string> {
     return this.repoPool.enqueue(() => {
       return this.getRepo(_path)
         .then(repo => repo.getCurrentBranch())
@@ -295,7 +295,7 @@ export default class Repository {
   // Returns a {Promise} which resolves to an {Object} with the following keys:
   //   * `ahead`  The {Number} of commits ahead.
   //   * `behind` The {Number} of commits behind.
-  public getAheadBehindCount (reference: string, _path?: string | null): Promise<{ahead: number, behind: number}> {
+  public getAheadBehindCount (reference: string, _path?: string): Promise<{ahead: number, behind: number}> {
     return this.repoPool.enqueue(() => {
       return this.getRepo(_path)
         .then(repo => Promise.all([repo, repo.getBranch(reference)]))
@@ -319,7 +319,7 @@ export default class Repository {
   // Returns a {Promise} which resolves to an {Object} with the following keys:
   //   * `ahead`  The {Number} of commits ahead.
   //   * `behind` The {Number} of commits behind.
-  public getCachedUpstreamAheadBehindCount (_path?: string | null): Promise<{ahead: number, behind: number}> {
+  public getCachedUpstreamAheadBehindCount (_path?: string): Promise<{ahead: number, behind: number}> {
     return this.relativizeToWorkingDirectory(_path)
       .then(relativePath => this._submoduleForPath(_path))
       .then(submodule => {
@@ -338,7 +338,7 @@ export default class Repository {
   //
   // Returns a {Promise} which resolves to the {String} git configuration value
   // specified by the key.
-  public getConfigValue (key: string, _path?: string | null): Promise<string | null> {
+  public getConfigValue (key: string, _path?: string): Promise<string> {
     return this.repoPool.enqueue(() => {
       return this.getRepo(_path)
         .then(repo => repo.configSnapshot())
@@ -354,7 +354,7 @@ export default class Repository {
   //
   // Returns a {Promise} which resolves to the {String} origin url of the
   // repository.
-  public getOriginURL (_path?: string | null): Promise<string | null> {
+  public getOriginURL (_path?: string): Promise<string> {
     return this.getConfigValue('remote.origin.url', _path)
   }
 
@@ -366,7 +366,7 @@ export default class Repository {
   //
   // Returns a {Promise} which resolves to a {String} branch name such as
   // `refs/remotes/origin/master`.
-  public getUpstreamBranch (_path?: string | null): Promise<string | null> {
+  public getUpstreamBranch (_path?: string): Promise<string> {
     return this.repoPool.enqueue(() => {
       return this.getRepo(_path)
         .then(repo => repo.getCurrentBranch())
@@ -383,7 +383,7 @@ export default class Repository {
   //  * `heads`   An {Array} of head reference names.
   //  * `remotes` An {Array} of remote reference names.
   //  * `tags`    An {Array} of tag reference names.
-  public getReferences (_path?: string | null): Promise<{heads: string[], remotes: string[], tags: string[]}> {
+  public getReferences (_path?: string): Promise<{heads: string[], remotes: string[], tags: string[]}> {
     return this.repoPool.enqueue(() => {
       return this.getRepo(_path)
         .then(repo => repo.getReferences(Git.Reference.TYPE.LISTALL))
@@ -413,7 +413,7 @@ export default class Repository {
   //
   // Returns a {Promise} which resolves to the current {String} SHA for the
   // given reference.
-  public getReferenceTarget (reference: string, _path?: string | null): Promise<string | null> {
+  public getReferenceTarget (reference: string, _path?: string): Promise<string> {
     return this.repoPool.enqueue(() => {
       return this.getRepo(_path)
         .then(repo => Git.Reference.nameToId(repo, reference))
@@ -500,7 +500,7 @@ export default class Repository {
   // Returns a {Promise} which resolves to a {Number} which is the refreshed
   // status bit for the path.
   public refreshStatusForPath (_path: string): Promise<number> {
-    let relativePath: string | null
+    let relativePath: string
     return this.getWorkingDirectory()
       .then(wd => {
         relativePath = this.relativize(_path, wd)
@@ -535,7 +535,7 @@ export default class Repository {
   //
   // Returns a {Promise} which resolves to a status {Number} or null if the
   // path is not in the cache.
-  public getCachedPathStatus (_path: string): Promise<number | null> {
+  public getCachedPathStatus (_path: string): Promise<number> {
     return this.relativizeToWorkingDirectory(_path)
       .then(relativePath => this.pathStatusCache[relativePath])
   }
@@ -660,7 +660,7 @@ export default class Repository {
   public getLineDiffs (_path: string, text: string): Promise<{oldStart: number, newStart: number, oldLines: number, newLines: number}[]> {
     return this.getWorkingDirectory(_path)
       .then(wd => {
-        let relativePath: string | null = null
+        let relativePath: string = null
         return this.repoPool.enqueue(() => {
           return this.getRepo(_path)
             .then(repo => {
@@ -864,7 +864,7 @@ export default class Repository {
     // their paths to be relative to us.
 
     const statuses = submodule.getCachedPathStatuses()
-    const repoRelativeStatuses = {}
+    const repoRelativeStatuses: {[key: string]: number} = {}
     const submoduleRepo = await submodule.getRepo()
     const submoduleWorkDir = submoduleRepo.workdir()
     for (const relativePath in statuses) {
@@ -1007,7 +1007,7 @@ export default class Repository {
   //          submodule.
   //
   // Returns a {Promise} which resolves to the {NodeGit.Repository}.
-  public getRepo (_path?: string | null): Promise<NodeGitRepository> {
+  public getRepo (_path?: string): Promise<NodeGitRepository> {
     if (this._isDestroyed()) {
       const error = new Error('Repository has been destroyed')
       error.name = Repository.DestroyedErrorName
@@ -1034,7 +1034,7 @@ export default class Repository {
     }
   }
 
-  private async getRepoPool(_path?: string | null): Promise<ResourcePool<NodeGitRepository>> {
+  private async getRepoPool(_path?: string): Promise<ResourcePool<NodeGitRepository>> {
     if (!_path) {
       return this.repoPool
     }
@@ -1047,7 +1047,7 @@ export default class Repository {
     }
   }
 
-  public async enqueue<V>(fn: (repo: NodeGitRepository) => V, _path?: string | null): Promise<V> {
+  public async enqueue<V>(fn: (repo: NodeGitRepository) => V, _path?: string): Promise<V> {
     const pool = await this.getRepoPool(_path)
     return pool.enqueue<V>(repoPromise => {
       return repoPromise.then((repo: NodeGitRepository) => fn(repo))
@@ -1075,12 +1075,12 @@ export default class Repository {
     return this.repoPool.enqueue(() => {
       return this.getRepo()
         .then(repo => {
-          const opts = {
+          const opts: {flags: number, pathspec?: string[]} = {
             flags: Git.Status.OPT.INCLUDE_UNTRACKED | Git.Status.OPT.RECURSE_UNTRACKED_DIRS
           }
 
           if (paths) {
-            opts['pathspec'] = paths
+            opts.pathspec = paths
           }
 
           return repo.getStatusExt(opts)
