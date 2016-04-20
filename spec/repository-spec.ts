@@ -1,7 +1,7 @@
 import * as path from 'path'
 
 import Repository from '../lib/repository'
-import {asyncIt, asyncBeforeEach, wait} from './async-spec-helpers'
+import {asyncIt, fasyncIt, asyncBeforeEach, wait} from './async-spec-helpers'
 
 const fs = require('fs-plus')
 const temp = require('temp')
@@ -9,13 +9,17 @@ const Git = require('nodegit')
 
 temp.track()
 
+function getFixturePath(name: string): string {
+  return path.join(__dirname, '..', '..', 'spec', 'fixtures', name)
+}
+
 function openFixture (fixture: string): Repository {
-  return Repository.open(path.join(__dirname, 'fixtures', 'git', fixture))
+  return Repository.open(getFixturePath(fixture))
 }
 
 function copyRepository (name = 'working-dir'): string {
-  const workingDirPath = temp.mkdirSync('atom-working-dir')
-  fs.copySync(path.join(__dirname, 'fixtures', 'git', name), workingDirPath)
+  const workingDirPath = temp.mkdirSync('git-working-dir')
+  fs.copySync(getFixturePath(name), workingDirPath)
   fs.renameSync(path.join(workingDirPath, 'git.git'), path.join(workingDirPath, '.git'))
   return fs.realpathSync(workingDirPath)
 }
@@ -56,8 +60,10 @@ describe('Repository', () => {
   })
 
   describe('.getRepo()', () => {
+    let workingDirectory: string
+
     asyncBeforeEach(async () => {
-      const workingDirectory = copySubmoduleRepository()
+      workingDirectory = copySubmoduleRepository()
       repo = Repository.open(workingDirectory)
       await repo.refreshStatus()
     })
@@ -102,7 +108,7 @@ describe('Repository', () => {
     asyncIt('returns the repository path for a repository path', async () => {
       repo = openFixture('master.git')
       const repoPath = await repo.getPath()
-      expect(repoPath).toBe(path.join(__dirname, 'fixtures', 'git', 'master.git'))
+      expect(repoPath).toBe(getFixturePath('master.git'))
     })
   })
 
@@ -216,18 +222,18 @@ describe('Repository', () => {
     asyncIt('fires a did-change-status event if the checkout completes successfully', async () => {
       fs.writeFileSync(filePath, 'ch ch changes')
 
-      await repo.getPathStatus(filePath)
+      await repo.refreshStatusForPath(filePath)
 
       const statusHandler = jasmine.createSpy('statusHandler')
       repo.onDidChangeStatus(statusHandler)
 
       await repo.checkoutHead(filePath)
 
-      expect(statusHandler.calls).toBe(1)
-      expect(statusHandler.argsForCall[0][0]).toEqual({path: filePath, pathStatus: 0})
+      expect(statusHandler.calls.count()).toBe(1)
+      expect(statusHandler).toHaveBeenCalledWith({path: filePath, pathStatus: 0})
 
       await repo.checkoutHead(filePath)
-      expect(statusHandler.calls).toBe(1)
+      expect(statusHandler.calls.count()).toBe(1)
     })
   })
 
@@ -269,13 +275,13 @@ describe('Repository', () => {
 
       await repo.getPathStatus(filePath)
 
-      expect(statusHandler.calls).toBe(1)
+      expect(statusHandler.calls.count()).toBe(1)
       const status = Git.Status.STATUS.WT_MODIFIED
-      expect(statusHandler.argsForCall[0][0]).toEqual({path: filePath, pathStatus: status})
+      expect(statusHandler).toHaveBeenCalledWith({path: filePath, pathStatus: status})
       fs.writeFileSync(filePath, 'abc')
 
       await repo.getPathStatus(filePath)
-      expect(statusHandler.calls).toBe(1)
+      expect(statusHandler.calls.count()).toBe(1)
     })
   })
 
@@ -359,7 +365,9 @@ describe('Repository', () => {
 
       await repo.refreshStatus()
 
-      waitsFor(() => statusHandler.calls.count() > 0, 'the onDidChangeStatuses handler to be called')
+      await wait(0)
+
+      expect(statusHandler.calls.count()).toBeGreaterThan(0)
     })
 
     asyncIt('emits did-change-statuses if the branch changes', async () => {
@@ -372,7 +380,9 @@ describe('Repository', () => {
 
       await repo.refreshStatus()
 
-      waitsFor(() => statusHandler.calls.count() > 0, 'the onDidChangeStatuses handler to be called')
+      await wait(0)
+
+      expect(statusHandler.calls.count()).toBeGreaterThan(0)
     })
 
     asyncIt('emits did-change-statuses if the ahead/behind changes', async () => {
@@ -385,7 +395,9 @@ describe('Repository', () => {
 
       await repo.refreshStatus()
 
-      waitsFor(() => statusHandler.calls.count() > 0, 'the onDidChangeStatuses handler to be called')
+      await wait(0)
+
+      expect(statusHandler.calls.count()).toBeGreaterThan(0)
     })
   })
 
