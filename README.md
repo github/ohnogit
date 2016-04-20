@@ -1,6 +1,6 @@
 # OhNoGit
 
-For when you have to use git.
+For when you have to use git in nodejs.
 
 A wrapper around [nodegit](https://github.com/nodegit/nodegit).
 
