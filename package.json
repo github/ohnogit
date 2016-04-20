@@ -8,7 +8,8 @@
     "compile": "tsc && babel build -d build",
     "test": "npm run compile && jasmine",
     "prepublish": "npm run lint && npm run compile",
-    "lint": "tslint lib/**/*.ts"
+    "lint": "tslint lib/**/*.ts",
+    "postinstall": "typings install"
   },
   "author": "",
   "license": "ISC",
