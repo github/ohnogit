@@ -2,8 +2,8 @@
   "name": "ohnogit",
   "version": "0.0.2",
   "description": "For when you have to use git.",
-  "main": "./build/index.js",
-  "typings": "./build/index.d.ts",
+  "main": "./build/lib/index.js",
+  "typings": "./build/lib/index.d.ts",
   "keywords": [
     "git",
     "nodegit",
