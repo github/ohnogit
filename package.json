@@ -1,7 +1,7 @@
 {
-  "name": "friendly-git",
+  "name": "ohnogit",
   "version": "0.0.1",
-  "description": "",
+  "description": "For when you have to use git.",
   "main": "./build/index.js",
   "typings": "./build/index.d.ts",
   "scripts": {
@@ -12,7 +12,7 @@
     "postinstall": "typings install"
   },
   "author": "",
-  "license": "ISC",
+  "license": "BSD",
   "devDependencies": {
     "babel-cli": "^6.7.5",
     "babel-polyfill": "^6.7.4",
