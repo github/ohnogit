@@ -1,6 +1,2 @@
 node_modules/
 typings/
-*.d.ts
-
-!index.d.ts
-!index.ref.d.ts
