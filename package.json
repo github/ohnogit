@@ -4,6 +4,7 @@
   "description": "For when you have to use git.",
   "main": "./build/index.js",
   "typings": "./build/index.d.ts",
+  "keywords": ["git", "nodegit", "regret"],
   "scripts": {
     "compile": "tsc && babel build -d build",
     "test": "npm run compile && jasmine",
