@@ -9,6 +9,10 @@
     "nodegit",
     "regret"
   ],
+  "repository" : {
+    "type": "git",
+    "url": "https://github.com/github/ohnogit.git"
+  },
   "scripts": {
     "compile": "tsc && babel build -d build",
     "test": "npm run compile && jasmine",
