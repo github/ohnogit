@@ -14,7 +14,6 @@
     "test": "npm run compile && jasmine",
     "prepublish": "npm run clean && npm run lint && npm run compile",
     "lint": "tslint lib/**/*.ts",
-    "postinstall": "typings install",
     "clean": "rm -rf build"
   },
   "author": "",
