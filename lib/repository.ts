@@ -734,8 +734,8 @@ export default class Repository {
     })
     .catch(error => {
       if (create) {
-        return this._createBranch(reference)
-          .then(_ => this.checkoutReference(reference, false))
+        return this.createBranch(reference)
+          .then(() => this.checkoutReference(reference, false))
       } else {
         throw error
       }
@@ -747,9 +747,8 @@ export default class Repository {
   //
   // * `name` The {String} name of the new branch.
   //
-  // Returns a {Promise} which resolves to a {NodeGit.Ref} reference to the
-  // created branch.
-  private _createBranch (name: string): Promise<any> {
+  // Returns a {Promise} which resolves or rejects.
+  public createBranch (name: string): Promise<void> {
     return this.repoPool.enqueue(() => {
       return this.getRepo()
         .then(repo => Promise.all([repo, repo.getHeadCommit()]))
