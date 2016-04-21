@@ -1,6 +1,6 @@
 import ResourcePool from '../lib/resource-pool'
 
-import {asyncIt, wait} from './async-spec-helpers'
+import './async-spec-helpers'
 
 describe('ResourcePool', () => {
   let queue: ResourcePool<{}>
@@ -10,7 +10,7 @@ describe('ResourcePool', () => {
   })
 
   describe('.enqueue', () => {
-    asyncIt('calls the enqueued function', async () => {
+    it('calls the enqueued function', async () => {
       let called = false
       await queue.enqueue(() => {
         called = true
@@ -19,12 +19,12 @@ describe('ResourcePool', () => {
       expect(called).toBe(true)
     })
 
-    asyncIt('forwards values from the inner promise', async () => {
+    it('forwards values from the inner promise', async () => {
       const result = await queue.enqueue(() => Promise.resolve(42))
       expect(result).toBe(42)
     })
 
-    asyncIt('forwards errors from the inner promise', async () => {
+    it('forwards errors from the inner promise', async () => {
       let threw = false
       try {
         await queue.enqueue(() => Promise.reject(new Error('down with the sickness')))
@@ -34,7 +34,7 @@ describe('ResourcePool', () => {
       expect(threw).toBe(true)
     })
 
-    asyncIt('continues to dequeue work after a promise has been rejected', async () => {
+    it('continues to dequeue work after a promise has been rejected', async () => {
       try {
         await queue.enqueue(() => Promise.reject(new Error('down with the sickness')))
       } catch (e) {}
@@ -43,7 +43,7 @@ describe('ResourcePool', () => {
       expect(result).toBe(42)
     })
 
-    asyncIt('queues up work', async () => {
+    it('queues up work', async () => {
       let resolve: Function = null
       queue.enqueue(() => {
         return new Promise((resolve_, reject) => {
