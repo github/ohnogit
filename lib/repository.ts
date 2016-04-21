@@ -4,6 +4,8 @@ import ResourcePool from './resource-pool'
 const fs = require('fs-plus')
 const {Emitter, CompositeDisposable, Disposable} = require('event-kit')
 const Git = require('nodegit')
+
+// TODO: We really shouldn't need this.
 const _ = require('underscore-plus')
 
 const modifiedStatusFlags: number = Git.Status.STATUS.WT_MODIFIED | Git.Status.STATUS.INDEX_MODIFIED | Git.Status.STATUS.WT_DELETED | Git.Status.STATUS.INDEX_DELETED | Git.Status.STATUS.WT_TYPECHANGE | Git.Status.STATUS.INDEX_TYPECHANGE
