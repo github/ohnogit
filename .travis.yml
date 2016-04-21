@@ -12,6 +12,3 @@ addons:
     packages:
       - clang-3.6
       - g++-4.8
-
-install: npm install && ./node_modules/.bin/typings install
-script: npm test
