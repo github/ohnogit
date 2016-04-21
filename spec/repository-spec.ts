@@ -617,6 +617,24 @@ describe('Repository', () => {
     })
   })
 
+  describe('.createBranch', () => {
+    beforeEach(() => {
+      const workingDirectory = copyRepository()
+      repo = Repository.open(workingDirectory)
+    })
+
+    it('can create new branches', async () => {
+      let success = false
+      let threw = false
+      await repo.createBranch('my-b')
+        .then(_ => success = true)
+        .catch(_ => threw = true)
+
+      expect(success).toBe(true)
+      expect(threw).toBe(false)
+    })
+  })
+
   describe('.getLineDiffs(path, text)', () => {
     beforeEach(() => {
       const workingDirectory = copyRepository()
