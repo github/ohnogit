@@ -16,7 +16,7 @@
   "scripts": {
     "compile": "npm run lint && tsc && babel build -d build",
     "test": "npm run compile && jasmine",
-    "prepublish": "npm run clean && npm run compile",
+    "prepublish": "./node_modules/.bin/typings install && npm run clean && npm run compile",
     "lint": "tslint lib/**/*.ts",
     "clean": "rm -rf build"
   },
