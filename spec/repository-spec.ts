@@ -1,7 +1,7 @@
 import * as path from 'path'
 
 import Repository from '../lib/repository'
-import {asyncIt, fasyncIt, asyncBeforeEach, wait} from './async-spec-helpers'
+import './async-spec-helpers'
 
 const fs = require('fs-plus')
 const temp = require('temp')
@@ -45,7 +45,7 @@ describe('Repository', () => {
   })
 
   describe('@open(path)', () => {
-    asyncIt('should throw when no repository is found', async () => {
+    it('should throw when no repository is found', async () => {
       repo = Repository.open(path.join(temp.dir, 'nogit.txt'))
 
       let threw = false
@@ -62,25 +62,25 @@ describe('Repository', () => {
   describe('.getRepo()', () => {
     let workingDirectory: string
 
-    asyncBeforeEach(async () => {
+    beforeEach(async () => {
       workingDirectory = copySubmoduleRepository()
       repo = Repository.open(workingDirectory)
       await repo.refreshStatus()
     })
 
-    asyncIt('returns the repository when not given a path', async () => {
+    it('returns the repository when not given a path', async () => {
       const nodeGitRepo1 = await repo.repoPromise
       const nodeGitRepo2 = await repo.getRepo()
       expect(nodeGitRepo1.workdir()).toBe(nodeGitRepo2.workdir())
     })
 
-    asyncIt('returns the repository when given a non-submodule path', async () => {
+    it('returns the repository when given a non-submodule path', async () => {
       const nodeGitRepo1 = await repo.repoPromise
       const nodeGitRepo2 = await repo.getRepo('README')
       expect(nodeGitRepo1.workdir()).toBe(nodeGitRepo2.workdir())
     })
 
-    asyncIt('returns the submodule repository when given a submodule path', async () => {
+    it('returns the submodule repository when given a submodule path', async () => {
       const nodeGitRepo1 = await repo.repoPromise
       const nodeGitRepo2 = await repo.getRepo('jstips')
       expect(nodeGitRepo1.workdir()).not.toBe(nodeGitRepo2.workdir())
@@ -92,7 +92,7 @@ describe('Repository', () => {
   })
 
   describe('.openRepository()', () => {
-    asyncIt('returns a new repository instance', async () => {
+    it('returns a new repository instance', async () => {
       repo = openFixture('master.git')
 
       const originalRepo = await repo.getRepo()
@@ -105,7 +105,7 @@ describe('Repository', () => {
   })
 
   describe('.getPath()', () => {
-    asyncIt('returns the repository path for a repository path', async () => {
+    it('returns the repository path for a repository path', async () => {
       repo = openFixture('master.git')
       const repoPath = await repo.getPath()
       expect(repoPath).toBe(getFixturePath('master.git'))
@@ -117,12 +117,12 @@ describe('Repository', () => {
       repo = openFixture('ignore.git')
     })
 
-    asyncIt('resolves true for an ignored path', async () => {
+    it('resolves true for an ignored path', async () => {
       const ignored = await repo.isPathIgnored('a.txt')
       expect(ignored).toBe(true)
     })
 
-    asyncIt('resolves false for a non-ignored path', async () => {
+    it('resolves false for a non-ignored path', async () => {
       const ignored = await repo.isPathIgnored('b.txt')
       expect(ignored).toBe(false)
     })
@@ -143,23 +143,23 @@ describe('Repository', () => {
     })
 
     describe('when the path is unstaged', () => {
-      asyncIt('resolves false if the path has not been modified', async () => {
+      it('resolves false if the path has not been modified', async () => {
         const modified = await repo.isPathModified(filePath)
         expect(modified).toBe(false)
       })
 
-      asyncIt('resolves true if the path is modified', async () => {
+      it('resolves true if the path is modified', async () => {
         fs.writeFileSync(filePath, 'change')
         const modified = await repo.isPathModified(filePath)
         expect(modified).toBe(true)
       })
 
-      asyncIt('resolves false if the path is new', async () => {
+      it('resolves false if the path is new', async () => {
         const modified = await repo.isPathModified(newPath)
         expect(modified).toBe(false)
       })
 
-      asyncIt('resolves false if the path is invalid', async () => {
+      it('resolves false if the path is invalid', async () => {
         const modified = await repo.isPathModified(emptyPath)
         expect(modified).toBe(false)
       })
@@ -177,12 +177,12 @@ describe('Repository', () => {
     })
 
     describe('when the path is unstaged', () => {
-      asyncIt('returns true if the path is new', async () => {
+      it('returns true if the path is new', async () => {
         const isNew = await repo.isPathNew(newPath)
         expect(isNew).toBe(true)
       })
 
-      asyncIt("returns false if the path isn't new", async () => {
+      it("returns false if the path isn't new", async () => {
         const modified = await repo.isPathModified(newPath)
         expect(modified).toBe(false)
       })
@@ -198,7 +198,7 @@ describe('Repository', () => {
       filePath = path.join(workingDirPath, 'a.txt')
     })
 
-    asyncIt('no longer reports a path as modified after checkout', async () => {
+    it('no longer reports a path as modified after checkout', async () => {
       let modified = await repo.isPathModified(filePath)
       expect(modified).toBe(false)
 
@@ -213,13 +213,13 @@ describe('Repository', () => {
       expect(modified).toBe(false)
     })
 
-    asyncIt('restores the contents of the path to the original text', async () => {
+    it('restores the contents of the path to the original text', async () => {
       fs.writeFileSync(filePath, 'ch ch changes')
       await repo.checkoutHead(filePath)
       expect(fs.readFileSync(filePath, 'utf8')).toBe('')
     })
 
-    asyncIt('fires a did-change-status event if the checkout completes successfully', async () => {
+    it('fires a did-change-status event if the checkout completes successfully', async () => {
       fs.writeFileSync(filePath, 'ch ch changes')
 
       await repo.refreshStatusForPath(filePath)
@@ -243,7 +243,7 @@ describe('Repository', () => {
       repo = Repository.open(workingDirectory)
     })
 
-    asyncIt('throws an exception when any method is called after it is called', async () => {
+    it('throws an exception when any method is called after it is called', async () => {
       repo.destroy()
 
       let error: Error = null
@@ -268,7 +268,7 @@ describe('Repository', () => {
       filePath = path.join(workingDirectory, 'file.txt')
     })
 
-    asyncIt('trigger a status-changed event when the new status differs from the last cached one', async () => {
+    it('trigger a status-changed event when the new status differs from the last cached one', async () => {
       const statusHandler = jasmine.createSpy('statusHandler')
       repo.onDidChangeStatus(statusHandler)
       fs.writeFileSync(filePath, '')
@@ -296,7 +296,7 @@ describe('Repository', () => {
       filePath = path.join(directoryPath, 'b.txt')
     })
 
-    asyncIt('gets the status based on the files inside the directory', async () => {
+    it('gets the status based on the files inside the directory', async () => {
       await repo.checkoutHead(filePath)
 
       let result = await repo.getDirectoryStatus(directoryPath)
@@ -327,7 +327,7 @@ describe('Repository', () => {
       newPath = fs.absolute(newPath) // specs could be running under symbol path.
     })
 
-    asyncIt('returns status information for all new and modified files', async () => {
+    it('returns status information for all new and modified files', async () => {
       await repo.refreshStatus()
 
       expect(await repo.getCachedPathStatus(cleanPath)).toBeUndefined()
@@ -347,7 +347,7 @@ describe('Repository', () => {
         newPath = fs.absolute(newPath) // specs could be running under symbol path.
       })
 
-      asyncIt('returns status information for all new and modified files', async () => {
+      it('returns status information for all new and modified files', async () => {
         await repo.refreshStatus()
 
         expect(await repo.getCachedPathStatus(cleanPath)).toBeUndefined()
@@ -356,7 +356,7 @@ describe('Repository', () => {
       })
     })
 
-    asyncIt('emits did-change-statuses if the status changes', async () => {
+    it('emits did-change-statuses if the status changes', async () => {
       const someNewPath = path.join(workingDirectory, 'MyNewJSFramework.md')
       fs.writeFileSync(someNewPath, '')
 
@@ -370,7 +370,7 @@ describe('Repository', () => {
       expect(statusHandler.calls.count()).toBeGreaterThan(0)
     })
 
-    asyncIt('emits did-change-statuses if the branch changes', async () => {
+    it('emits did-change-statuses if the branch changes', async () => {
       const statusHandler = jasmine.createSpy('statusHandler')
       repo.onDidChangeStatuses(statusHandler)
 
@@ -385,7 +385,7 @@ describe('Repository', () => {
       expect(statusHandler.calls.count()).toBeGreaterThan(0)
     })
 
-    asyncIt('emits did-change-statuses if the ahead/behind changes', async () => {
+    it('emits did-change-statuses if the ahead/behind changes', async () => {
       const statusHandler = jasmine.createSpy('statusHandler')
       repo.onDidChangeStatuses(statusHandler)
 
@@ -441,7 +441,7 @@ describe('Repository', () => {
       repo = Repository.open(workingDirectory)
     })
 
-    asyncIt('returns the human-readable branch name', async () => {
+    it('returns the human-readable branch name', async () => {
       const head = await repo.getShortHead()
       expect(head).toBe('master')
     })
@@ -452,7 +452,7 @@ describe('Repository', () => {
         repo = Repository.open(workingDirectory)
       })
 
-      asyncIt('returns the human-readable branch name', async () => {
+      it('returns the human-readable branch name', async () => {
         await repo.refreshStatus()
 
         const head = await repo.getShortHead('jstips')
@@ -467,12 +467,12 @@ describe('Repository', () => {
       repo = Repository.open(workingDirectory)
     })
 
-    asyncIt("returns false for a path that isn't a submodule", async () => {
+    it("returns false for a path that isn't a submodule", async () => {
       const isSubmodule = await repo.isSubmodule('README')
       expect(isSubmodule).toBe(false)
     })
 
-    asyncIt('returns true for a path that is a submodule', async () => {
+    it('returns true for a path that is a submodule', async () => {
       const isSubmodule = await repo.isSubmodule('jstips')
       expect(isSubmodule).toBe(true)
     })
@@ -484,7 +484,7 @@ describe('Repository', () => {
       repo = Repository.open(workingDirectory)
     })
 
-    asyncIt('returns 0, 0 for a branch with no upstream', async () => {
+    it('returns 0, 0 for a branch with no upstream', async () => {
       const {ahead, behind} = await repo.getAheadBehindCount('master')
       expect(ahead).toBe(0)
       expect(behind).toBe(0)
@@ -497,7 +497,7 @@ describe('Repository', () => {
       repo = Repository.open(workingDirectory)
     })
 
-    asyncIt('returns 0, 0 for a branch with no upstream', async () => {
+    it('returns 0, 0 for a branch with no upstream', async () => {
       await repo.refreshStatus()
 
       const {ahead, behind} = await repo.getCachedUpstreamAheadBehindCount()
@@ -511,7 +511,7 @@ describe('Repository', () => {
         repo = Repository.open(workingDirectory)
       })
 
-      asyncIt('returns 1, 0 for a branch which is ahead by 1', async () => {
+      it('returns 1, 0 for a branch which is ahead by 1', async () => {
         await repo.refreshStatus()
 
         const {ahead, behind} = await repo.getCachedUpstreamAheadBehindCount('You-Dont-Need-jQuery')
@@ -529,7 +529,7 @@ describe('Repository', () => {
       repo = Repository.open(workingDirectory)
     })
 
-    asyncIt('returns the diff stat', async () => {
+    it('returns the diff stat', async () => {
       const filePath = path.join(workingDirectory, 'a.txt')
       fs.writeFileSync(filePath, 'change')
 
@@ -545,12 +545,12 @@ describe('Repository', () => {
       repo = Repository.open(workingDirectory)
     })
 
-    asyncIt('resolves true when the branch exists', async () => {
+    it('resolves true when the branch exists', async () => {
       const hasBranch = await repo.hasBranch('master')
       expect(hasBranch).toBe(true)
     })
 
-    asyncIt("resolves false when the branch doesn't exist", async () => {
+    it("resolves false when the branch doesn't exist", async () => {
       const hasBranch = await repo.hasBranch('trolleybus')
       expect(hasBranch).toBe(false)
     })
@@ -562,7 +562,7 @@ describe('Repository', () => {
       repo = Repository.open(workingDirectory)
     })
 
-    asyncIt('returns the heads, remotes, and tags', async () => {
+    it('returns the heads, remotes, and tags', async () => {
       const {heads, remotes, tags} = await repo.getReferences()
       expect(heads.length).toBe(1)
       expect(remotes.length).toBe(0)
@@ -576,7 +576,7 @@ describe('Repository', () => {
       repo = Repository.open(workingDirectory)
     })
 
-    asyncIt('returns the SHA target', async () => {
+    it('returns the SHA target', async () => {
       const SHA = await repo.getReferenceTarget('refs/heads/master')
       expect(SHA).toBe('8a9c86f1cb1f14b8f436eb91f4b052c8802ca99e')
     })
@@ -588,12 +588,12 @@ describe('Repository', () => {
       repo = Repository.open(workingDirectory)
     })
 
-    asyncIt('looks up the value for the key', async () => {
+    it('looks up the value for the key', async () => {
       const bare = await repo.getConfigValue('core.bare')
       expect(bare).toBe('false')
     })
 
-    asyncIt("resolves to null if there's no value", async () => {
+    it("resolves to null if there's no value", async () => {
       const value = await repo.getConfigValue('my.special.key')
       expect(value).toBeNull()
     })
@@ -605,7 +605,7 @@ describe('Repository', () => {
       repo = Repository.open(workingDirectory)
     })
 
-    asyncIt('can create new branches', async () => {
+    it('can create new branches', async () => {
       let success = false
       let threw = false
       await repo.checkoutReference('my-b', true)
@@ -623,7 +623,7 @@ describe('Repository', () => {
       repo = Repository.open(workingDirectory)
     })
 
-    asyncIt('returns the old and new lines of the diff', async () => {
+    it('returns the old and new lines of the diff', async () => {
       const [{oldStart, newStart, oldLines, newLines}] = await repo.getLineDiffs('a.txt', 'hi there')
       expect(oldStart).toBe(0)
       expect(oldLines).toBe(0)
@@ -640,7 +640,7 @@ describe('Repository', () => {
       repo = Repository.open(workingDirectory)
     })
 
-    asyncIt('relativizes the given path to the working directory of the repository', async () => {
+    it('relativizes the given path to the working directory of the repository', async () => {
       let absolutePath = path.join(workingDirectory, 'a.txt')
       expect(await repo.relativizeToWorkingDirectory(absolutePath)).toBe('a.txt')
       absolutePath = path.join(workingDirectory, 'a/b/c.txt')
@@ -654,7 +654,7 @@ describe('Repository', () => {
     })
 
     describe('when the opened path is a symlink', () => {
-      asyncIt('relativizes against both the linked path and real path', async () => {
+      it('relativizes against both the linked path and real path', async () => {
         // Symlinks require admin privs on windows so we just skip this there,
         // done in git-utils as well
         if (process.platform === 'win32') {
@@ -670,7 +670,7 @@ describe('Repository', () => {
         expect(await linkedRepo.relativizeToWorkingDirectory('test2/test3')).toBe('test2/test3')
       })
 
-      asyncIt('handles case insensitive filesystems', async () => {
+      it('handles case insensitive filesystems', async () => {
         repo.isCaseInsensitive = true
         expect(await repo.relativizeToWorkingDirectory(path.join(workingDirectory.toUpperCase(), 'a.txt'))).toBe('a.txt')
         expect(await repo.relativizeToWorkingDirectory(path.join(workingDirectory.toUpperCase(), 'a/b/c.txt'))).toBe('a/b/c.txt')
