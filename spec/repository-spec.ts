@@ -695,4 +695,31 @@ describe('Repository', () => {
       })
     })
   })
+
+  describe('.enqueue', () => {
+    let workingDirectory: string
+
+    beforeEach(() => {
+      workingDirectory = copyRepository()
+      repo = Repository.open(workingDirectory)
+    })
+
+    it('dequeues tasks', async () => {
+      const result = await repo.enqueue(async (repo) => {
+        const branch = await repo.getCurrentBranch()
+        return branch.shorthand()
+      })
+      expect(result).toBe('master')
+    })
+
+    it('passes errors through', async () => {
+      let threw = false
+      try {
+        await repo.enqueue(repo => Promise.reject(new Error()))
+      } catch (e) {
+        threw = true
+      }
+      expect(threw).toBe(true)
+    })
+  })
 })
