@@ -617,6 +617,24 @@ describe('Repository', () => {
     })
   })
 
+  describe('.createBranch', () => {
+    beforeEach(() => {
+      const workingDirectory = copyRepository()
+      repo = Repository.open(workingDirectory)
+    })
+
+    it('can create new branches', async () => {
+      let success = false
+      let threw = false
+      await repo.createBranch('my-b')
+        .then(_ => success = true)
+        .catch(_ => threw = true)
+
+      expect(success).toBe(true)
+      expect(threw).toBe(false)
+    })
+  })
+
   describe('.getLineDiffs(path, text)', () => {
     beforeEach(() => {
       const workingDirectory = copyRepository()
@@ -675,6 +693,33 @@ describe('Repository', () => {
         expect(await repo.relativizeToWorkingDirectory(path.join(workingDirectory.toUpperCase(), 'a.txt'))).toBe('a.txt')
         expect(await repo.relativizeToWorkingDirectory(path.join(workingDirectory.toUpperCase(), 'a/b/c.txt'))).toBe('a/b/c.txt')
       })
+    })
+  })
+
+  describe('.enqueue', () => {
+    let workingDirectory: string
+
+    beforeEach(() => {
+      workingDirectory = copyRepository()
+      repo = Repository.open(workingDirectory)
+    })
+
+    it('dequeues tasks', async () => {
+      const result = await repo.enqueue(async (repo) => {
+        const branch = await repo.getCurrentBranch()
+        return branch.shorthand()
+      })
+      expect(result).toBe('master')
+    })
+
+    it('passes errors through', async () => {
+      let threw = false
+      try {
+        await repo.enqueue(repo => Promise.reject(new Error()))
+      } catch (e) {
+        threw = true
+      }
+      expect(threw).toBe(true)
     })
   })
 })
