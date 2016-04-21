@@ -14,9 +14,9 @@
     "url": "https://github.com/github/ohnogit.git"
   },
   "scripts": {
-    "compile": "tsc && babel build -d build",
+    "compile": "npm run lint && tsc && babel build -d build",
     "test": "npm run compile && jasmine",
-    "prepublish": "npm run clean && npm run lint && npm run compile",
+    "prepublish": "npm run clean && npm run compile",
     "lint": "tslint lib/**/*.ts",
     "clean": "rm -rf build"
   },
