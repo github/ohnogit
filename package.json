@@ -21,7 +21,7 @@
     "clean": "rm -rf build"
   },
   "author": "",
-  "license": "BSD",
+  "license": "BSD-2-Clause",
   "devDependencies": {
     "babel-cli": "^6.7.5",
     "babel-plugin-transform-runtime": "^6.7.5",
