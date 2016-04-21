@@ -26,5 +26,4 @@ For development:
 ```
 git clone https://github.com/github/ohnogit
 npm install
-./node_modules/.bin/typings install
 ```
