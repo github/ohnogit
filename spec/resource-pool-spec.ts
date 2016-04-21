@@ -1,5 +1,3 @@
-require('babel-polyfill')
-
 import ResourcePool from '../lib/resource-pool'
 
 import {asyncIt, wait} from './async-spec-helpers'
