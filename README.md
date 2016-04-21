@@ -14,6 +14,13 @@ To use:
 npm install ohnogit --save
 ```
 
+```js
+import {Repository} from 'ohnogit'
+
+const repo = Repository.open('path/to/repository')
+await repo.refreshStatus()
+```
+
 For development:
 
 ```
