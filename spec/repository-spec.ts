@@ -722,4 +722,22 @@ describe('Repository', () => {
       expect(threw).toBe(true)
     })
   })
+
+  describe('.getUpstreamBranch()', () => {
+    it('returns null when there is no upstream branch', async () => {
+      const workingDirectory = copyRepository()
+      repo = Repository.open(workingDirectory)
+
+      const upstream = await repo.getUpstreamBranch()
+      expect(upstream).toBe(null)
+    })
+
+    it('returns the upstream branch', async () => {
+      const workingDirectory = copyRepository('repo-with-submodules')
+      repo = Repository.open(workingDirectory)
+
+      const upstream = await repo.getUpstreamBranch()
+      expect(upstream).toBe('refs/remotes/origin/master')
+    })
+  })
 })
