@@ -373,6 +373,8 @@ export default class Repository {
       return this.getRepo(_path)
         .then(repo => repo.getCurrentBranch())
         .then(branch => Git.Branch.upstream(branch))
+        .then(ref => ref.name())
+        .catch(_ => null)
     })
   }
 
