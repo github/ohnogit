@@ -276,7 +276,7 @@ export default class Repository {
       .then(relativePath => {
         return this.repoPool.enqueue(() => {
           return this.getRepo()
-            .then(repo => repo.index())
+            .then(repo => repo.refreshIndex())
             .then(index => {
               const entry = index.getByPath(relativePath)
               if (!entry) { return false }
