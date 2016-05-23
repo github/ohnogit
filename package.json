@@ -1,6 +1,6 @@
 {
   "name": "ohnogit",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "For when you have to use git.",
   "main": "./build/lib/index.js",
   "typings": "./build/lib/index.d.ts",
